@@ -80,7 +80,7 @@ class ResNeXt50(nn.Module):
 
         return nn.Sequential(*layers)
 
-    def forward(self, x):
+    def forward(self, x, return_features=False):
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
@@ -92,10 +92,16 @@ class ResNeXt50(nn.Module):
         x = self.layer4(x)
 
         x = self.avgpool(x)
-        x = torch.flatten(x, 1)
-        x = self.fc(x)
+        features = torch.flatten(x, 1)
+        
+        if return_features:
+            return self.fc(features), features
+        
+        return self.fc(features)
 
-        return x
+    def get_feature_dim(self):
+        """Get the dimension of the feature vector."""
+        return 512 * Bottleneck.expansion
 
 
 # Define the ResNeXt101 class similar to ResNeXt50
@@ -138,7 +144,7 @@ class ResNeXt101(nn.Module):
 
         return nn.Sequential(*layers)
 
-    def forward(self, x):
+    def forward(self, x, return_features=False):
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
@@ -150,7 +156,13 @@ class ResNeXt101(nn.Module):
         x = self.layer4(x)
 
         x = self.avgpool(x)
-        x = torch.flatten(x, 1)
-        x = self.fc(x)
+        features = torch.flatten(x, 1)
+        
+        if return_features:
+            return self.fc(features), features
+        
+        return self.fc(features)
 
-        return x
+    def get_feature_dim(self):
+        """Get the dimension of the feature vector."""
+        return 512 * Bottleneck.expansion
